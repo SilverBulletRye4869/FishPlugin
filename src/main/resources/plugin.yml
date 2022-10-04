@@ -1,0 +1,4 @@
+name: FishPlugin
+version: '${project.version}'
+main: silverassist.fishplugin.FishPlugin
+api-version: 1.18
