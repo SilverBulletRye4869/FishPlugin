@@ -1,6 +1,8 @@
-package silverassist.fishplugin.system;
+package silverassist.fishplugin.system.calc;
 
-import de.tr7zw.nbtapi.NBTItem;
+
+import de.tr7zw.changeme.nbtapi.NBTItem;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
@@ -8,21 +10,39 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
+import silverassist.fishplugin.FishPlugin;
 
 public class Calc {
     private final double BASE_POWER = 10;
-    double CalcMain(PlayerFishEvent e){
+    public double CalcMain(PlayerFishEvent e){
+
         Player p = e.getPlayer();
         World w = p.getWorld();
-        double power = this.BASE_POWER;
-        power += CalcExp(p);
-        power += CalcLuck(p);
-        power += CalcRod(p);
-        power += CalcWhether(w);
-        power += CalcTime(w);
-        power += CalcMoon(w);
+
+        double power = this.BASE_POWER; //基礎パワー
+        power += CalcRod(p); //竿パワー　（基本パワー + 宝釣りパワー）
+        power += CalcExp(p); //経験値パワー
+        power += CalcLuck(p);//幸運パワー
+        power += CalcWhether(w);//天気パワー
+        power += CalcTime(w);//時間パワー
+        power += CalcMoon(w);//月齢パワー
+
+        //釣り場の大きさペナルティ( ×0.25 ~ ×1.0)
+        FishPlugin.plugin.getServer().broadcastMessage(String.valueOf(power));
+        CalcWater calcWater = new CalcWater(e.getHook().getWorld());
+        Location loc = e.getHook().getLocation();
+        int dy = 0;
+        while (true){
+            if(loc.add(0,dy+1,0).getBlock().getType() == Material.WATER)dy++;
+            else break;
+
+            if(dy>10)break;
+        }
+        int waterSize = (int) Math.floor((calcWater.SizeCheck(e.getHook().getLocation().add(0,dy,0), new int[]{0,0},true) - 1)*3/50);
+        power *= calcWater.CalcPenaByWater(waterSize);
+
+        FishPlugin.plugin.getServer().broadcastMessage("水辺の大きさ: " + waterSize);
+
         return power;
     }
     //ロッドの計算
@@ -30,8 +50,7 @@ public class Calc {
         ItemStack item = p.getInventory().getItemInMainHand();
         double RodRank = 0;
         if(item.getType() == Material.AIR)return 0;
-        if(!new NBTItem(item).hasKey("fishpower"))return 0;
-        RodRank += new NBTItem(item).getDouble("fishpower");
+        if(new NBTItem(item).hasKey("fishpower"))RodRank += new NBTItem(item).getInteger("fishpower");
         RodRank += item.getEnchantmentLevel(Enchantment.LUCK) * 10.0; // + レベル*10
         return RodRank;
 
