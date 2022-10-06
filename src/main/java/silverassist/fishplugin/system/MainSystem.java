@@ -66,7 +66,6 @@ public class MainSystem implements Listener{
                 });
             }
         }
-        FishPlugin.plugin.getServer().broadcastMessage("->"+totalWeight.get());
         ItemStack item = null;
         return item;
     }
