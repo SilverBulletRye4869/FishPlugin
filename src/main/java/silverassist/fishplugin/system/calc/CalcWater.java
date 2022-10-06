@@ -3,7 +3,6 @@ package silverassist.fishplugin.system.calc;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import silverassist.fishplugin.FishPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
