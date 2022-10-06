@@ -38,7 +38,7 @@ public class Calc {
 
             if(dy>10)break;
         }
-        int waterSize = (int) Math.floor((calcWater.SizeCheck(e.getHook().getLocation().add(0,dy,0), new int[]{0,0},true) - 1)*3/50);
+        int waterSize = (int) Math.floor((calcWater.SizeCheck(e.getHook().getLocation().add(0,dy,0), new int[]{0,0}) - 1)*3/50);
         power *= calcWater.CalcPenaByWater(waterSize);
 
         FishPlugin.plugin.getServer().broadcastMessage("水辺の大きさ: " + waterSize);

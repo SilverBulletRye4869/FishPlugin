@@ -15,7 +15,7 @@ public class CalcWater {
         this.SearchFlag = new HashMap<>();
         this.world = world;
     }
-    int SizeCheck(Location loc, int delta_before[]/*{dx,dz}*/, boolean debug){
+    int SizeCheck(Location loc, int delta_before[]/*{dx,dz}*/){
 
         if(world.getBlockAt(loc).getType() != Material.WATER)return 0;
         SearchFlag.put(loc,true);
@@ -33,7 +33,7 @@ public class CalcWater {
             loc2.add(-1,0,0);
             if(SearchFlag.get(loc2) == null){
                 delta[0]--;
-                count += SizeCheck(loc2,delta,false);
+                count += SizeCheck(loc2,delta);
                 delta[0]++;
             }
         }
@@ -43,7 +43,7 @@ public class CalcWater {
             loc2.add(1,0,0);
             if(SearchFlag.get(loc2) == null){
                 delta[0]++;
-                count += SizeCheck(loc2,delta,false);
+                count += SizeCheck(loc2,delta);
                 delta[0]--;
             }
         }
@@ -53,7 +53,7 @@ public class CalcWater {
             loc2.add(0,0,-1);
             if(SearchFlag.get(loc2) == null){
                 delta[1]--;
-                count += SizeCheck(loc2,delta,false);
+                count += SizeCheck(loc2,delta);
                 delta[1]++;
             }
         }
@@ -63,12 +63,9 @@ public class CalcWater {
             loc2.add(0,0,1);
             if(SearchFlag.get(loc2) == null){
                 delta[1]++;
-                count += SizeCheck(loc2,delta,false);
+                count += SizeCheck(loc2,delta);
                 delta[1]--;
             }
-        }
-        if(debug){
-            FishPlugin.plugin.getServer().broadcastMessage("index: "+ SearchFlag.size());
         }
         return count;
     }
