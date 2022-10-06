@@ -1,4 +1,11 @@
 name: FishPlugin
 version: '${project.version}'
 main: silverassist.fishplugin.FishPlugin
-api-version: 1.18
+api-version: 1.17
+
+commands:
+  fishpower:
+    description: 釣りパワー設定コマンド
+    permission: op
+    permission-message: けんげんないよぉ
+    usage: /fishpower <get/set> [<amount(setのみ)>]
