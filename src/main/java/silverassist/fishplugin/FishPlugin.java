@@ -3,17 +3,12 @@ package silverassist.fishplugin;
 import org.bukkit.block.Biome;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
-import silverassist.fishplugin.command.Rod;
+import silverassist.fishplugin.command.Fish;
+import silverassist.fishplugin.command.Fishpower;
 import silverassist.fishplugin.system.MainSystem;
 
-import java.util.List;
-import java.util.Map;
-
 public final class FishPlugin extends JavaPlugin {
-
     public static JavaPlugin plugin = null;
-    public static Map<String, Map<String,List<Map<?, ?>> > > fishData;
-
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
@@ -26,8 +21,12 @@ public final class FishPlugin extends JavaPlugin {
         saveConfig();
 
         getServer().getPluginManager().registerEvents(new MainSystem(), this);
-        PluginCommand command = getCommand("fishpower");
-        if (command != null) command.setExecutor(new Rod());
+
+        PluginCommand command;
+        command = getCommand("fishpower");
+        if (command != null) command.setExecutor(new Fishpower());
+        command = getCommand("fish");
+        if (command != null) command.setExecutor(new Fish());
     }
 
     @Override
