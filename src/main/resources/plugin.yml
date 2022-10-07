@@ -9,3 +9,9 @@ commands:
     permission: op
     permission-message: けんげんないよぉ
     usage: /fishpower <get/set> [<amount(setのみ)>]
+
+  fish:
+    description: 釣り関係いろいろコマンド(今はconfig-reloadのみ)
+    permission: op
+    permission-message: けんげんないよぉ
+    usage: /fishpower <reload>
