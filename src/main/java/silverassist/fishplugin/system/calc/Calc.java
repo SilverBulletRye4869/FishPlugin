@@ -10,7 +10,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
-import silverassist.fishplugin.FishPlugin;
 
 public class Calc {
     private final double BASE_POWER = 10;
@@ -18,7 +17,6 @@ public class Calc {
 
         Player p = e.getPlayer();
         World w = p.getWorld();
-
         double power = this.BASE_POWER; //基礎パワー
         power += CalcRod(p); //竿パワー　（基本パワー + 宝釣りパワー）
         power += CalcExp(p); //経験値パワー
@@ -28,24 +26,22 @@ public class Calc {
         power += CalcMoon(w);//月齢パワー
 
         //釣り場の大きさペナルティ( ×0.25 ~ ×1.0)
-        FishPlugin.plugin.getServer().broadcastMessage(String.valueOf(power));
         CalcWater calcWater = new CalcWater(e.getHook().getWorld());
         Location loc = e.getHook().getLocation();
         int dy = 0;
         while (true){
-            if(loc.add(0,dy+1,0).getBlock().getType() == Material.WATER)dy++;
+            if(loc.add(0,1,0).getBlock().getType() == Material.WATER)dy++;
             else break;
 
             if(dy>10)break;
         }
-        int waterSize = (int) Math.floor((calcWater.SizeCheck(e.getHook().getLocation().add(0,dy,0), new int[]{0,0}) - 1)*3/50);
-        power *= calcWater.CalcPenaByWater(waterSize);
+        int waterSize = calcWater.SizeCheck(e.getHook().getLocation().add(0,dy,0), new int[]{0,0})*3/50;
 
-        FishPlugin.plugin.getServer().broadcastMessage("水辺の大きさ: " + waterSize);
+        power *= calcWater.CalcPenaByWater(waterSize);
 
         return power;
     }
-    //ロッドの計算
+    //ロッドの計算 (宝釣り含む)
     private double CalcRod(Player p){
         ItemStack item = p.getInventory().getItemInMainHand();
         double RodRank = 0;
@@ -67,15 +63,9 @@ public class Calc {
     private double CalcLuck(Player p){
         double luck = p.getAttribute(Attribute.GENERIC_LUCK).getValue();
         double maxluck = 5;
-        double power = Math.max( (30.0 / maxluck) * Math.min(maxluck, luck) , -30.0);
-        return power;
+        return Math.max( (30.0 / maxluck) * Math.min(maxluck, luck) , -30.0);
     }
 
-    //宝釣りの計算
-    private double CalcEnch(ItemStack item){
-
-        return 0;
-    }
 
     //天気の計算
     private double CalcWhether(World w){
@@ -97,7 +87,7 @@ public class Calc {
     }
 
     private double CalcMoon(World w){
-        int moonType = (int) (Math.floor(w.getFullTime() / 24000) % 8);
+        int moonType = (int) (w.getFullTime() / 24000 % 8);
         switch (moonType){
             //満月
             case 0:
