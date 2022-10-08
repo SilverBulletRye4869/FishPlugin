@@ -8,16 +8,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CalcWater {
-    private Map<Location, Boolean> SearchFlag;
+    private Map<String, Boolean> SearchFlag;
     private World world;
     public CalcWater(World world){
         this.SearchFlag = new HashMap<>();
         this.world = world;
     }
-    int SizeCheck(Location loc, int delta_before[]/*{dx,dz}*/){
+    int SizeCheck(Location loc, int[] delta_before/*{dx,dz}*/){
 
         if(world.getBlockAt(loc).getType() != Material.WATER)return 0;
-        SearchFlag.put(loc,true);
+        SearchFlag.put(CoordRound(loc),true);
         int[] delta = new int[4];
         System.arraycopy(delta_before, 0, delta,0 , 2);
 
@@ -30,7 +30,7 @@ public class CalcWater {
         if(Math.abs(delta[0])<9&&count<100){
             loc2 = LocationCopy(loc);
             loc2.add(-1,0,0);
-            if(SearchFlag.get(loc2) == null){
+            if(SearchFlag.get(CoordRound(loc2)) == null){
                 delta[0]--;
                 count += SizeCheck(loc2,delta);
                 delta[0]++;
@@ -40,7 +40,7 @@ public class CalcWater {
         if(Math.abs(delta[0])<9&&count<100){
             loc2 = LocationCopy(loc);
             loc2.add(1,0,0);
-            if(SearchFlag.get(loc2) == null){
+            if(SearchFlag.get(CoordRound(loc2)) == null){
                 delta[0]++;
                 count += SizeCheck(loc2,delta);
                 delta[0]--;
@@ -50,7 +50,7 @@ public class CalcWater {
         if(Math.abs(delta[1])<9&&count<100){
             loc2 = LocationCopy(loc);
             loc2.add(0,0,-1);
-            if(SearchFlag.get(loc2) == null){
+            if(SearchFlag.get(CoordRound(loc2)) == null){
                 delta[1]--;
                 count += SizeCheck(loc2,delta);
                 delta[1]++;
@@ -60,7 +60,7 @@ public class CalcWater {
         if(Math.abs(delta[1])<9&&count<100){
             loc2 = LocationCopy(loc);
             loc2.add(0,0,1);
-            if(SearchFlag.get(loc2) == null){
+            if(SearchFlag.get(CoordRound(loc2)) == null){
                 delta[1]++;
                 count += SizeCheck(loc2,delta);
                 delta[1]--;
@@ -70,8 +70,12 @@ public class CalcWater {
     }
 
     private Location LocationCopy(Location loc){
-        Location loc2 = new Location(loc.getWorld(),loc.getX(),loc.getY(),loc.getZ());
-        return loc2;
+        return new Location(loc.getWorld(),loc.getX(),loc.getY(),loc.getZ());
+    }
+
+    //丸め誤差防止用
+    private String CoordRound(Location loc){
+        return loc.getWorld()+"-"+Math.round(loc.getX())+"-"+Math.round(loc.getZ());
     }
 
     double CalcPenaByWater(int waterSize){
@@ -79,11 +83,11 @@ public class CalcWater {
             case 5:
                 return 0.75;
             case 4:
-                return 2/3;
+                return 2.0/3;
             case 3:
                 return 0.5;
             case 2:
-                return 1/3;
+                return 1.0/3;
             case 1:
             case 0:
                 return 0.25;
