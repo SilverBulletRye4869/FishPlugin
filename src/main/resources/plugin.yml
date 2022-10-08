@@ -11,7 +11,5 @@ commands:
     usage: /fishpower <get/set> [<amount(setのみ)>]
 
   fish:
-    description: 釣り関係いろいろコマンド(今はconfig-reloadのみ)
-    permission: op
-    permission-message: けんげんないよぉ
-    usage: /fishpower <reload>
+    description: 釣り関係いろいろコマンド
+    usage: /fish <modechange>
