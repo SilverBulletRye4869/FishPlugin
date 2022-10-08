@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainSystem implements Listener{
+    public static List<Player> fishModeTrue= new ArrayList<>();
+
     @EventHandler
     public void onPlayerFish(PlayerFishEvent e) {
-
+        //if(!fishModeTrue.contains(e.getPlayer()))return;
         ItemStack item;
         Item FishItem = (Item) e.getCaught();
         if(FishItem==null)return;
@@ -49,14 +51,21 @@ public class MainSystem implements Listener{
             ConfigurationSection keyP = config.getConfigurationSection(path);
             if (keyP != null) {
                 keyP.getKeys(false).forEach(key -> {
-                    int min_weight = config.getInt(path+"." + key + ".min_weight");
-                    if (min_weight > power) return;
+                    if (config.getInt(path+"." + key + ".min_weight") > power) return;
+
                     int weight = config.getInt(path+"." + key + ".weight");
                     if (weight == 0) return;
+
                     String perm = config.getString(path+"."+key+".permission");
                     if(perm!=null){
                         if(!p.hasPermission(perm))return;
                     }
+
+                    String world = config.getString(path+"."+key+".world");
+                    if(world !=null){
+                        if(!world.equals(p.getWorld().getName()))return;
+                    }
+
                     totalWeight.addAndGet(weight);
                     fishData.put(key, totalWeight.get());
                 });
@@ -70,7 +79,6 @@ public class MainSystem implements Listener{
         String fish = null;
         int num = (int)Math.floor(Math.random() * totalWeight.get());
         for(String fishType: fishData.keySet()){
-            FishPlugin.plugin.getServer().broadcastMessage(fishData.get(fishType) +"<-"+num);
             if(fishData.get(fishType)>num){
                 fish = fishType;
                 break;
