@@ -10,9 +10,11 @@ import java.util.Map;
 public class CalcWater {
     private Map<String, Boolean> SearchFlag;
     private World world;
+    private int count;
     public CalcWater(World world){
         this.SearchFlag = new HashMap<>();
         this.world = world;
+        this.count = 0;
     }
     int SizeCheck(Location loc, int[] delta_before/*{dx,dz}*/){
 
@@ -21,7 +23,6 @@ public class CalcWater {
         int[] delta = new int[4];
         System.arraycopy(delta_before, 0, delta,0 , 2);
 
-        int count = 0;
         Location loc2 = LocationCopy(loc);
         if(world.getBlockAt(loc2.add(0,-1,0)).getType()== Material.WATER &&
                 world.getBlockAt(loc2.add(0,-1,0)).getType()== Material.WATER)count++;
@@ -32,7 +33,7 @@ public class CalcWater {
             loc2.add(-1,0,0);
             if(SearchFlag.get(CoordRound(loc2)) == null){
                 delta[0]--;
-                count += SizeCheck(loc2,delta);
+                SizeCheck(loc2,delta);
                 delta[0]++;
             }
         }
@@ -42,7 +43,7 @@ public class CalcWater {
             loc2.add(1,0,0);
             if(SearchFlag.get(CoordRound(loc2)) == null){
                 delta[0]++;
-                count += SizeCheck(loc2,delta);
+                SizeCheck(loc2,delta);
                 delta[0]--;
             }
         }
@@ -52,7 +53,7 @@ public class CalcWater {
             loc2.add(0,0,-1);
             if(SearchFlag.get(CoordRound(loc2)) == null){
                 delta[1]--;
-                count += SizeCheck(loc2,delta);
+                SizeCheck(loc2,delta);
                 delta[1]++;
             }
         }
@@ -62,7 +63,7 @@ public class CalcWater {
             loc2.add(0,0,1);
             if(SearchFlag.get(CoordRound(loc2)) == null){
                 delta[1]++;
-                count += SizeCheck(loc2,delta);
+                SizeCheck(loc2,delta);
                 delta[1]--;
             }
         }
@@ -78,22 +79,6 @@ public class CalcWater {
         return loc.getWorld()+"-"+Math.round(loc.getX())+"-"+Math.round(loc.getZ());
     }
 
-    double CalcPenaByWater(int waterSize){
-        switch (waterSize){
-            case 5:
-                return 0.75;
-            case 4:
-                return 2.0/3;
-            case 3:
-                return 0.5;
-            case 2:
-                return 1.0/3;
-            case 1:
-            case 0:
-                return 0.25;
-            default:
-                return 1.0;
-        }
-    }
+
 
 }
