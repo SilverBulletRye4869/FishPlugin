@@ -36,8 +36,7 @@ public class Calc {
             if(dy>10)break;
         }
         int waterSize = calcWater.SizeCheck(e.getHook().getLocation().add(0,dy,0), new int[]{0,0})*3/50;
-
-        power *= calcWater.CalcPenaByWater(waterSize);
+        power *= CalcPenaByWater(waterSize); //ペナルティ
 
         return power;
     }
@@ -106,6 +105,24 @@ public class Calc {
             //その他
             default:
                 return 0;
+        }
+    }
+
+    private double CalcPenaByWater(int waterSize){
+        switch (waterSize){
+            case 5:
+                return 0.75;
+            case 4:
+                return 2.0/3;
+            case 3:
+                return 0.5;
+            case 2:
+                return 1.0/3;
+            case 1:
+            case 0:
+                return 0.25;
+            default:
+                return 1.0;
         }
     }
 }
