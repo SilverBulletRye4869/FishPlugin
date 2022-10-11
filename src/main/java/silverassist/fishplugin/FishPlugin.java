@@ -4,7 +4,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.fishplugin.command.Fish;
-import silverassist.fishplugin.command.Fishpower;
+import silverassist.fishplugin.command.RodData;
 import silverassist.fishplugin.system.MainSystem;
 
 public final class FishPlugin extends JavaPlugin {
@@ -23,8 +23,8 @@ public final class FishPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MainSystem(), this);
 
         PluginCommand command;
-        command = getCommand("fishpower");
-        if (command != null) command.setExecutor(new Fishpower());
+        command = getCommand("rod");
+        if (command != null) command.setExecutor(new RodData());
         command = getCommand("fish");
         if (command != null) command.setExecutor(new Fish());
     }
