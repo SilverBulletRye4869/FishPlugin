@@ -1,5 +1,7 @@
 package silverassist.fishplugin.system;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
@@ -36,7 +38,15 @@ public class MainSystem implements Listener{
         }
         item = DecideItem(power, e.getPlayer());
 
-        FishItem.setItemStack(item);
+
+        if(CutLine(e.getPlayer()))FishItem.setItemStack(item);
+        else{
+            e.setCancelled(true);
+            e.getPlayer().getWorld().setGameRuleValue("sendCommandFeedback","false");
+            Bukkit.dispatchCommand(FishPlugin.plugin.getServer().getConsoleSender(), "minecraft:kill " + e.getHook().getUniqueId());
+
+        }
+
     }
 
     private ItemStack DecideItem(double power, Player p){
@@ -97,6 +107,17 @@ public class MainSystem implements Listener{
         if(fishType == null)return ErrorPaper(power,biome,"アイテム「"+fishTypeStr+"」は存在しません. ("+fishKey+")");
 
         return CreateItem(Material.getMaterial(fishTypeStr),config.getString(fishKey+".name"), (List<String>) config.get(fishKey + ".lore"),config.getInt(fishKey));
+    }
+
+    private boolean CutLine(Player p){
+        ItemStack item = p.getInventory().getItemInMainHand();
+        if(item.getType() !=Material.FISHING_ROD)return true;
+        double denominator = 7;
+        NBTItem nbt = new NBTItem(item);
+        if(nbt.hasKey("CutLine"))denominator = nbt.getInteger("CutLine");
+
+        if(Math.random() * 100 < denominator)return true;
+        else return false;
     }
 
     private ItemStack CreateItem(Material material, String name, List<String> lore, int model){
