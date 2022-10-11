@@ -4,7 +4,7 @@ main: silverassist.fishplugin.FishPlugin
 api-version: 1.17
 
 commands:
-  fishpower:
+  rod:
     description: 釣りパワー設定コマンド
     permission: op
     permission-message: けんげんないよぉ
