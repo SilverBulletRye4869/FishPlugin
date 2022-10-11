@@ -11,19 +11,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class Calc {
-    private final double BASE_POWER = 10;
-    public double CalcMain(PlayerFishEvent e){
+import java.util.Map;
 
+public class Calc {
+    private double[] EnchPower = {10,22.5,40};
+
+    public double CalcMain(PlayerFishEvent e){
         Player p = e.getPlayer();
         World w = p.getWorld();
-        double power = this.BASE_POWER; //基礎パワー
-        power += CalcRod(p); //竿パワー　（基本パワー + 宝釣りパワー）
-        power += CalcExp(p); //経験値パワー
-        power += CalcLuck(p);//幸運パワー
-        power += CalcWhether(w);//天気パワー
-        power += CalcTime(w);//時間パワー
-        power += CalcMoon(w);//月齢パワー
+        double fishPower = CalcRod(p); //基礎パワー + 竿パワー
+        double powerBonus = 100;
+        powerBonus += CalcEnch(p);//宝釣り
+        powerBonus += CalcExp(p); //経験値パワー
+        powerBonus += CalcLuck(p);//幸運パワー
+        powerBonus += CalcWhether(w);//天気パワー
+        powerBonus += CalcTime(w);//時間パワー
+        powerBonus += CalcMoon(w);//月齢パワー
 
         //釣り場の大きさペナルティ( ×0.25 ~ ×1.0)
         CalcWater calcWater = new CalcWater(e.getHook().getWorld());
@@ -36,25 +39,30 @@ public class Calc {
             if(dy>10)break;
         }
         int waterSize = calcWater.SizeCheck(e.getHook().getLocation().add(0,dy,0), new int[]{0,0})*3/50;
-        power *= CalcPenaByWater(waterSize); //ペナルティ
-
-        return power;
+        fishPower *= powerBonus/100;
+        fishPower *= CalcPenaByWater(waterSize); //ペナルティ
+        return fishPower;
     }
     //ロッドの計算 (宝釣り含む)
     private double CalcRod(Player p){
         ItemStack item = p.getInventory().getItemInMainHand();
         double RodRank = 0;
-        if(item.getType() == Material.AIR)return 0;
         if(new NBTItem(item).hasKey("fishpower"))RodRank += new NBTItem(item).getInteger("fishpower");
-        RodRank += item.getEnchantmentLevel(Enchantment.LUCK) * 10.0; // + レベル*10
         return RodRank;
-
     }
 
+    private double CalcEnch(Player p){
+        ItemStack item = p.getInventory().getItemInMainHand();
+        if(item.getType() == Material.AIR)return 0;
+        int EnchLv =item.getEnchantmentLevel(Enchantment.LUCK);
+
+        if(EnchLv>0)return EnchPower[EnchLv-1];
+        return 0;
+    }
     //経験値レベルの計算
     private double CalcExp(Player p){
         double lv = p.getExpToLevel();
-        double power = 4.0 * Math.sqrt(lv);
+        double power = 4.0 * (lv / 10);
         return Math.min(40,power);
     }
 
