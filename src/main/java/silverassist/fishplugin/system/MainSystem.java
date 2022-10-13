@@ -25,7 +25,7 @@ public class MainSystem implements Listener{
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent e) {
-        //if(!fishModeTrue.contains(e.getPlayer()))return;
+        if(!fishModeTrue.contains(e.getPlayer()))return;
         ItemStack item;
         Item FishItem = (Item) e.getCaught();
         if(FishItem==null)return;
@@ -38,13 +38,11 @@ public class MainSystem implements Listener{
         }
         item = DecideItem(power, e.getPlayer());
 
-
-        if(CutLine(e.getPlayer()))FishItem.setItemStack(item);
+        if(!CutLine(e.getPlayer()))FishItem.setItemStack(item);
         else{
             e.setCancelled(true);
             e.getPlayer().getWorld().setGameRuleValue("sendCommandFeedback","false");
             Bukkit.dispatchCommand(FishPlugin.plugin.getServer().getConsoleSender(), "minecraft:kill " + e.getHook().getUniqueId());
-
         }
 
     }
@@ -61,7 +59,10 @@ public class MainSystem implements Listener{
             ConfigurationSection keyP = config.getConfigurationSection(path);
             if (keyP != null) {
                 keyP.getKeys(false).forEach(key -> {
-                    if (config.getInt(path+"." + key + ".min_weight") > power) return;
+                    if (config.getInt(path+"." + key + ".min_power") > power) return; //最少パワー
+                    if(config.get(path+"." + key + ".max_power")!=null){ // 最大パワー
+                        if(config.getInt(path+"." + key + ".max_power") < power)return;
+                    }
 
                     int weight = config.getInt(path+"." + key + ".weight");
                     if (weight == 0) return;
@@ -112,10 +113,9 @@ public class MainSystem implements Listener{
     private boolean CutLine(Player p){
         ItemStack item = p.getInventory().getItemInMainHand();
         if(item.getType() !=Material.FISHING_ROD)return true;
-        double denominator = 7;
+        double denominator = 100.0/7.0;
         NBTItem nbt = new NBTItem(item);
-        if(nbt.hasKey("CutLine"))denominator = nbt.getInteger("CutLine");
-
+        if(nbt.hasKey("cutline"))denominator = nbt.getInteger("cutline");
         if(Math.random() * 100 < denominator)return true;
         else return false;
     }
