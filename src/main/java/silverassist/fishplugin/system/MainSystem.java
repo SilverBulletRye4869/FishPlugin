@@ -1,7 +1,6 @@
 package silverassist.fishplugin.system;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,35 +19,55 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainSystem implements Listener{
+import static silverassist.fishplugin.Function.consoleCommand;
+
+public final class MainSystem implements Listener{
     public static List<Player> fishModeTrue= new ArrayList<>();
+    private final FileConfiguration config;
+    private ItemStack item = null;
+    private String command = "";
+
+    public MainSystem(){
+        this.config = FishPlugin.plugin.getConfig();
+    }
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent e) {
         if(!fishModeTrue.contains(e.getPlayer()))return;
-        ItemStack item;
         Item FishItem = (Item) e.getCaught();
         if(FishItem==null)return;
 
+        //釣りパワー計算
         double power = new Calc().CalcMain(e);
         //釣りパワーが負の時はハズレアイテムにする
         if(power < 0){
-            FishItem.setItemStack(HazleItem());
+            HazleItem();
+            FishItem.setItemStack(this.item);
             return;
         }
-        item = DecideItem(power, e.getPlayer());
 
-        if(!CutLine(e.getPlayer()))FishItem.setItemStack(item);
-        else{
+        //アイテム,コマンド決定
+        DecideItem(power, e.getPlayer());
+
+
+        //consoleコマンドをRUN
+        consoleCommand(this.command);
+        //釣り糸の切れる設定
+        if(CutLine(e.getPlayer())||this.item==null){
             e.setCancelled(true);
             e.getPlayer().getWorld().setGameRuleValue("sendCommandFeedback","false");
-            Bukkit.dispatchCommand(FishPlugin.plugin.getServer().getConsoleSender(), "minecraft:kill " + e.getHook().getUniqueId());
+            consoleCommand("minecraft:kill " + e.getHook().getUniqueId());
+            return;
         }
+
+        FishItem.setItemStack(this.item);
+
+
 
     }
 
-    private ItemStack DecideItem(double power, Player p){
-        FileConfiguration config = FishPlugin.plugin.getConfig();
+    private void DecideItem(double power, Player p){
+
         Map<String,Integer> fishData = new LinkedHashMap<>();
         AtomicInteger totalWeight = new AtomicInteger(0);
         Biome biome = p.getWorld().getBiome(p.getLocation());
@@ -83,7 +102,10 @@ public class MainSystem implements Listener{
             }
             border = totalWeight.get();
         }
-        if(totalWeight.get()==0)return HazleItem(); //魚が見つからなければハズレを返す
+        if(totalWeight.get()==0) {
+            HazleItem();
+            return;
+        }  //魚が見つからなければハズレを返す
 
 
         //魚決定
@@ -103,11 +125,20 @@ public class MainSystem implements Listener{
 
         //item-type
         String fishTypeStr = config.getString(fishKey + ".item-material");
-        if(fishTypeStr==null)return ErrorPaper(power,biome,"「"+fishKey+"」にitem-materialがセットされていません");
-        Material fishType = Material.getMaterial(fishTypeStr);
-        if(fishType == null)return ErrorPaper(power,biome,"アイテム「"+fishTypeStr+"」は存在しません. ("+fishKey+")");
+        String command = config.getString(fishKey+".console_command");
 
-        return CreateItem(Material.getMaterial(fishTypeStr),config.getString(fishKey+".name"), (List<String>) config.get(fishKey + ".lore"),config.getInt(fishKey));
+
+        //itemセット
+        if(fishTypeStr!=null){
+            Material fishType = Material.getMaterial(fishTypeStr);
+            if(fishType != null)this.item =CreateItem(Material.getMaterial(fishTypeStr),config.getString(fishKey+".name"), (List<String>) config.get(fishKey + ".lore"),config.getInt(fishKey));
+        }
+        //commandセット
+        if(command != null)this.command=command;
+
+        //コマンドもItemStackも設定されていなければErrorPaper
+        if(this.item==null||this.command ==null)ErrorPaper(power,biome,"「"+fishKey+"」に正しいitem-material又はコマンドがセットされていません");
+
     }
 
     private boolean CutLine(Player p){
@@ -116,8 +147,7 @@ public class MainSystem implements Listener{
         double denominator = 100.0/7.0;
         NBTItem nbt = new NBTItem(item);
         if(nbt.hasKey("cutline"))denominator = nbt.getInteger("cutline");
-        if(Math.random() * 100 < denominator)return true;
-        else return false;
+        return Math.random() * 100 < denominator;
     }
 
     private ItemStack CreateItem(Material material, String name, List<String> lore, int model){
@@ -130,19 +160,19 @@ public class MainSystem implements Listener{
         item.setItemMeta(meta);
         return item;
     }
-    private ItemStack ErrorPaper(double power, Biome biome, String reason){
+    private void ErrorPaper(double power, Biome biome, String reason){
         List<String> lore = new ArrayList<>();
         lore.add("§f§lエラーが発生しました。");
         lore.add("§f§lこの紙を運営に渡してください。");
         lore.add("§6内容: "+ reason);
         lore.add("§6釣りパワー: "+power + "§6 ,バイオーム: "+biome.name());
-        return CreateItem(Material.PAPER, "§c§lエラーペーパー", lore, 0);
+        this.item = CreateItem(Material.PAPER, "§c§lエラーペーパー", lore, 0);
     }
 
-    private ItemStack HazleItem(){
+    private void HazleItem(){
         List<String> lore = new ArrayList<>();
         lore.add("§f釣りパワーが不足しているようだ");
-        return CreateItem(Material.KELP, "§a§l水草", lore,0);
+        this.item = CreateItem(Material.KELP, "§a§l水草", lore,0);
     }
 
 }
