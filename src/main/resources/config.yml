@@ -1,0 +1,19 @@
+ANY:
+  rotten_cod:
+    min_power: 0
+    max_power: 200
+    weight: 10000
+    item-material: COD
+    name: くさったたら
+    lore:
+      - くさっている
+    model: 1
+  golden_fish:
+    min_power: 100
+    weight: 1
+    item-material: SALMON
+    name: 金の鮭
+  night:
+    min_power: 0
+    weight: 30
+    console_command: time set night
