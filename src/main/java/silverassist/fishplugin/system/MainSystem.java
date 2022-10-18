@@ -1,6 +1,7 @@
 package silverassist.fishplugin.system;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
@@ -24,16 +25,18 @@ import static silverassist.fishplugin.Function.consoleCommand;
 public final class MainSystem implements Listener{
     public static List<Player> fishModeTrue= new ArrayList<>();
     private final FileConfiguration config;
-    private ItemStack item = null;
-    private String command = "";
+    private ItemStack item;
+    private String command;
 
     public MainSystem(){
         this.config = FishPlugin.plugin.getConfig();
+        this.command="";
+        this.item = null;
     }
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent e) {
-        if(!fishModeTrue.contains(e.getPlayer()))return;
+        //if(!fishModeTrue.contains(e.getPlayer()))return; //デバック時コメアウト
         Item FishItem = (Item) e.getCaught();
         if(FishItem==null)return;
 
@@ -51,6 +54,7 @@ public final class MainSystem implements Listener{
 
 
         //consoleコマンドをRUN
+        commandReplace(e);
         consoleCommand(this.command);
         //釣り糸の切れる設定
         if(CutLine(e.getPlayer())||this.item==null){
@@ -134,10 +138,11 @@ public final class MainSystem implements Listener{
             if(fishType != null)this.item =CreateItem(Material.getMaterial(fishTypeStr),config.getString(fishKey+".name"), (List<String>) config.get(fishKey + ".lore"),config.getInt(fishKey));
         }
         //commandセット
+
         if(command != null)this.command=command;
 
         //コマンドもItemStackも設定されていなければErrorPaper
-        if(this.item==null||this.command ==null)ErrorPaper(power,biome,"「"+fishKey+"」に正しいitem-material又はコマンドがセットされていません");
+        if(this.item==null&&this.command ==null)ErrorPaper(power,biome,"「"+fishKey+"」に正しいitem-material又はコマンドがセットされていません");
 
     }
 
@@ -148,6 +153,21 @@ public final class MainSystem implements Listener{
         NBTItem nbt = new NBTItem(item);
         if(nbt.hasKey("cutline"))denominator = nbt.getInteger("cutline");
         return Math.random() * 100 < denominator;
+    }
+    private void commandReplace(PlayerFishEvent e){
+        Player p = e.getPlayer();
+        Map<String,String> replace = new LinkedHashMap<>();
+        Location loc = e.getHook().getLocation();
+        double[] pos = {loc.getX(),loc.getY(),loc.getZ()};
+
+        replace.put("{w}", p.getWorld().getName());
+        replace.put("{lx}",pos[0]+"");
+        replace.put("{ly}",pos[1]+"");
+        replace.put("{lz}",pos[2]+"");
+        replace.put("{l}", pos[0]+" "+pos[1]+" "+pos[2]);
+        replace.put("{p}",p.getName());
+
+        for(String s: replace.keySet())this.command = this.command.replace(s,replace.get(s));
     }
 
     private ItemStack CreateItem(Material material, String name, List<String> lore, int model){
@@ -174,5 +194,6 @@ public final class MainSystem implements Listener{
         lore.add("§f釣りパワーが不足しているようだ");
         this.item = CreateItem(Material.KELP, "§a§l水草", lore,0);
     }
+
 
 }
