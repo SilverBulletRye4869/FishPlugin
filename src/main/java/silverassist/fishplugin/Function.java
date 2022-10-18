@@ -7,4 +7,9 @@ public class Function {
     public static void consoleCommand(String command){
         Bukkit.dispatchCommand(FishPlugin.plugin.getServer().getConsoleSender(), command);
     }
+    public static void broadCast(String msg){
+        FishPlugin.plugin.getServer().broadcastMessage(msg);
+    }
+
+
 }
