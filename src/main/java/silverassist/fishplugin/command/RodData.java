@@ -28,7 +28,7 @@ public class RodData implements CommandExecutor {
                         break;
                     case "cutline":
                         nbt.setDouble("cutline", Double.valueOf(args[2]));
-                        p.sendMessage("§a§l手に持っている竿の糸の耐久値を§d§l"+args[2]+"§a§lに設定しました。");
+                        p.sendMessage("§a§l手に持っている竿の糸が切れる確率§d§l"+args[2]+"§a§l%に設定しました。");
                 }
                 item = nbt.getItem();
                 p.getInventory().setItemInMainHand(item);
@@ -41,7 +41,7 @@ public class RodData implements CommandExecutor {
                         else p.sendMessage("§c§l釣りパワーが設定されていません");
                         break;
                     case "cutline":
-                        if(nbt.hasKey("cutline")) p.sendMessage("§a§l釣り糸耐久値ー: §d§l"+nbt.getInteger("cutline"));
+                        if(nbt.hasKey("cutline")) p.sendMessage("§a§l釣り糸がキレる確率: §d§l"+nbt.getInteger("cutline")+"§a§l%");
                         else p.sendMessage("§c§l釣り糸耐久値が設定されていません");
                         break;
                 }
