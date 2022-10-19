@@ -8,7 +8,7 @@ commands:
     description: 釣りパワー設定コマンド
     permission: op
     permission-message: けんげんないよぉ
-    usage: /fishpower <get/set> [<amount(setのみ)>]
+    usage: /rod <get/set> <power/cutline> [<amount(setのみ)>]
 
   fish:
     description: 釣り関係いろいろコマンド
