@@ -11,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
-
 public class Calc {
     private double[] EnchPower = {10,22.5,40};
 
