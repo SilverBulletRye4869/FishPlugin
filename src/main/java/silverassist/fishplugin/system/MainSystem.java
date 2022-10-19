@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static silverassist.fishplugin.Function.consoleCommand;
+import static silverassist.fishplugin.Function.stringReplace;
 
 public final class MainSystem implements Listener{
     public static List<Player> fishModeTrue= new ArrayList<>();
@@ -54,7 +55,7 @@ public final class MainSystem implements Listener{
 
 
         //consoleコマンドをRUN
-        commandReplace(e);
+        this.command = stringReplace(this.command,e.getPlayer(),e.getHook().getLocation());
         consoleCommand(this.command);
         //釣り糸の切れる設定
         if(CutLine(e.getPlayer())||this.item==null){
@@ -154,21 +155,7 @@ public final class MainSystem implements Listener{
         if(nbt.hasKey("cutline"))denominator = nbt.getInteger("cutline");
         return Math.random() * 100 < denominator;
     }
-    private void commandReplace(PlayerFishEvent e){
-        Player p = e.getPlayer();
-        Map<String,String> replace = new LinkedHashMap<>();
-        Location loc = e.getHook().getLocation();
-        double[] pos = {loc.getX(),loc.getY(),loc.getZ()};
 
-        replace.put("{w}", p.getWorld().getName());
-        replace.put("{lx}",pos[0]+"");
-        replace.put("{ly}",pos[1]+"");
-        replace.put("{lz}",pos[2]+"");
-        replace.put("{l}", pos[0]+" "+pos[1]+" "+pos[2]);
-        replace.put("{p}",p.getName());
-
-        for(String s: replace.keySet())this.command = this.command.replace(s,replace.get(s));
-    }
 
     private ItemStack CreateItem(Material material, String name, List<String> lore, int model){
         ItemStack item = new ItemStack(material);
