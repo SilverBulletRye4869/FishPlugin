@@ -1,7 +1,6 @@
 package silverassist.fishplugin.system;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
@@ -14,6 +13,7 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import silverassist.fishplugin.FishPlugin;
+import silverassist.fishplugin.Function;
 import silverassist.fishplugin.system.calc.Calc;
 
 import java.util.*;
@@ -25,11 +25,11 @@ import static silverassist.fishplugin.Function.stringReplace;
 
 public final class MainSystem implements Listener{
     public static List<Player> fishModeTrue= new ArrayList<>();
-    private final FileConfiguration config;
-    private ItemStack item;
-    private String command;
+    private FileConfiguration config;
+    private ItemStack item = null;
+    private String command = "";
 
-    public MainSystem(){
+    public void reset(){
         this.config = FishPlugin.plugin.getConfig();
         this.command="";
         this.item = null;
@@ -37,7 +37,8 @@ public final class MainSystem implements Listener{
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent e) {
-        //if(!fishModeTrue.contains(e.getPlayer()))return; //デバック時コメアウト
+        reset();
+        if(!fishModeTrue.contains(e.getPlayer()))return; //デバック時コメアウト
         Item FishItem = (Item) e.getCaught();
         if(FishItem==null)return;
 
@@ -85,6 +86,7 @@ public final class MainSystem implements Listener{
                 keyP.getKeys(false).forEach(key -> {
                     if (config.getInt(path+"." + key + ".min_power") > power) return; //最少パワー
                     if(config.get(path+"." + key + ".max_power")!=null){ // 最大パワー
+                        Function.broadCast(config.getInt(path+"." + key + ".max_power")+"");
                         if(config.getInt(path+"." + key + ".max_power") < power)return;
                     }
 
