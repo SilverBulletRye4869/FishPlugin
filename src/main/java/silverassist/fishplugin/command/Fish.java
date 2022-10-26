@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import silverassist.fishplugin.FishPlugin;
 import silverassist.fishplugin.system.MainSystem;
 
-import java.util.List;
 
 public class Fish implements CommandExecutor {
     private final String prefix = "§b§l[§e§lFishPlugin§b§l]§r";
@@ -32,6 +31,10 @@ public class Fish implements CommandExecutor {
                 }
                 break;
 
+            case "reload":
+                FishPlugin.plugin.reloadConfig();
+                p.sendMessage(prefix+"§a§lconfigをreloadしました");
+                break;
 
         }
         return true;
