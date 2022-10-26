@@ -2,6 +2,7 @@ package silverassist.fishplugin;
 
 import org.bukkit.block.Biome;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.fishplugin.command.Fish;
 import silverassist.fishplugin.command.RodData;
@@ -11,12 +12,13 @@ public final class FishPlugin extends JavaPlugin {
     public static JavaPlugin plugin = null;
     @Override
     public void onEnable() {
-        this.saveDefaultConfig();
         plugin = this;
         // Plugin startup logic
+        this.saveDefaultConfig();
+        FileConfiguration config = getConfig();
         for(Biome biome: Biome.values()){
-            if(getConfig().get(biome.name()) !=null)continue;
-            getConfig().set(biome.name(), "");
+            if(config.get(biome.name()) !=null)continue;
+            config.set(biome.name(), "");
         }
         saveConfig();
 
