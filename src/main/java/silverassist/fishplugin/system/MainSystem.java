@@ -25,19 +25,12 @@ import static silverassist.fishplugin.Function.stringReplace;
 
 public final class MainSystem implements Listener{
     public static List<Player> fishModeTrue= new ArrayList<>();
-    private FileConfiguration config;
+    private FileConfiguration config = FishPlugin.plugin.getConfig();
     private ItemStack item = null;
     private String command = "";
 
-    public void reset(){
-        this.config = FishPlugin.plugin.getConfig();
-        this.command="";
-        this.item = null;
-    }
-
     @EventHandler
     public void onPlayerFish(PlayerFishEvent e) {
-        reset();
         if(!fishModeTrue.contains(e.getPlayer()))return; //デバック時コメアウト
         Item FishItem = (Item) e.getCaught();
         if(FishItem==null)return;
@@ -86,7 +79,6 @@ public final class MainSystem implements Listener{
                 keyP.getKeys(false).forEach(key -> {
                     if (config.getInt(path+"." + key + ".min_power") > power) return; //最少パワー
                     if(config.get(path+"." + key + ".max_power")!=null){ // 最大パワー
-                        Function.broadCast(config.getInt(path+"." + key + ".max_power")+"");
                         if(config.getInt(path+"." + key + ".max_power") < power)return;
                     }
 
